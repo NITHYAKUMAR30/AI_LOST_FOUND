@@ -209,7 +209,16 @@ with tab1:
                     item = filtered_df.iloc[idx]
 
                     # Convert cosine distance into similarity percentage
-                    match_percentage = (1 - distance) * 100
+                    tfidf_similarity = max(0, 1 - distance)
+
+query_words = set(l_name.lower().strip().split())
+item_words = set(item['item_details'].lower().strip().split())
+
+common_words = query_words.intersection(item_words)
+
+word_overlap = len(common_words) / max(len(query_words), len(item_words))
+
+match_percentage = tfidf_similarity * word_overlap * 100
 
                     # Show only matches above 10%
                     if match_percentage > 10:
@@ -252,7 +261,7 @@ with tab1:
                             # STEP 8: CONTACT INFORMATION
                             # ------------------------------------
 
-                            if match_percentage > 60:
+                            if match_percentage > 75:
 
                                 st.success(
                                     "High Probability Match!"
