@@ -156,41 +156,33 @@ with tab1:
                 # STEP 6: KNN TEXT MATCHING
                 # ------------------------------------
 
-                # Get descriptions from filtered records
                 db_descriptions = filtered_df[
                     'item_details'
                 ].tolist()
 
-                # Combine user description and database descriptions
                 all_descriptions = [
                     l_name.lower().strip()
                 ] + db_descriptions
 
-                # Convert text into numerical features
                 vectorizer = TfidfVectorizer()
 
                 feature_matrix = vectorizer.fit_transform(
                     all_descriptions
                 )
 
-                # Separate user input and database items
                 user_vector = feature_matrix[0:1]
 
                 db_vectors = feature_matrix[1:]
 
-                # Set K value
                 k = min(3, len(filtered_df))
 
-                # Create KNN model
                 knn = NearestNeighbors(
                     n_neighbors=k,
                     metric='cosine'
                 )
 
-                # Train KNN using found item descriptions
                 knn.fit(db_vectors)
 
-                # Find nearest neighbors
                 distances, indices = knn.kneighbors(
                     user_vector
                 )
@@ -208,17 +200,29 @@ with tab1:
 
                     item = filtered_df.iloc[idx]
 
-                    # Convert cosine distance into similarity percentage
+                    # Adjusted matching score
                     tfidf_similarity = max(0, 1 - distance)
 
-query_words = set(l_name.lower().strip().split())
-item_words = set(item['item_details'].lower().strip().split())
+                    query_words = set(
+                        l_name.lower().strip().split()
+                    )
 
-common_words = query_words.intersection(item_words)
+                    item_words = set(
+                        item['item_details'].lower().strip().split()
+                    )
 
-word_overlap = len(common_words) / max(len(query_words), len(item_words))
+                    common_words = query_words.intersection(
+                        item_words
+                    )
 
-match_percentage = tfidf_similarity * word_overlap * 100
+                    word_overlap = len(common_words) / max(
+                        len(query_words),
+                        len(item_words)
+                    )
+
+                    match_percentage = (
+                        tfidf_similarity * word_overlap * 100
+                    )
 
                     # Show only matches above 10%
                     if match_percentage > 10:
