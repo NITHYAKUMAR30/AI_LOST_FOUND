@@ -1,5 +1,5 @@
 streamlit
 pandas
 numpy
-Pillow
+pillow
 scikit-learn
